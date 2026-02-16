@@ -11,4 +11,5 @@
 result = (1 + 2) * 3
 print(result)
 
-# TODO написать формулу для 1 2 3 4 5 и вывести значение на консоль
+results = 1 * (2+3) * 4 + 5
+print(results)

@@ -52,4 +52,26 @@ print('Лампа -', lamps_quantity, 'шт, стоимость', lamps_cost, '�
 # WARNING для знающих циклы: БЕЗ циклов. Да, с переменными; да, неэффективно; да, копипаста.
 # Это задание на ручное вычисление - что бы потом понять как работают циклы и насколько с ними проще жить.
 
-# TODO здесь ваш код
+table_code = goods['Стол']
+table_items = store[table_code]
+table_quantity = table_items[0]['quantity'] + table_items[1]['quantity']
+table_cost = (table_items[0]['quantity'] * table_items[0]['price'] +
+              table_items[1]['quantity'] * table_items[1]['price'])
+print('Стол -', table_quantity, 'шт, стоимость', table_cost, 'руб')
+
+divan_code = goods['Диван']
+divan_items = store[divan_code]
+divan_quantity = divan_items[0]['quantity'] + divan_items[1]['quantity']
+divan_cost = (divan_items[0]['quantity'] * divan_items[0]['price'] +
+              divan_items[1]['quantity'] * divan_items[1]['price'])
+print('Диван -', divan_quantity, 'шт, стоимость', divan_cost, 'руб')
+
+chair_code = goods['Стул']
+chair_items = store[chair_code]
+chair_quantity = (chair_items[0]['quantity'] +
+                  chair_items[1]['quantity'] +
+                  chair_items[2]['quantity'])
+chair_cost = (chair_items[0]['quantity'] * chair_items[0]['price'] +
+              chair_items[1]['quantity'] * chair_items[1]['price'] +
+              chair_items[2]['quantity'] * chair_items[2]['price'])
+print('Стул -', chair_quantity, 'шт, стоимость', chair_cost, 'руб')
