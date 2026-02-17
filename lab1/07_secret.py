@@ -33,9 +33,9 @@ secret_message = [
 #   Если нужны вычисления и разные пробы - делайте это в консоли пайтона, тут нужен только результат
 
 w1 = secret_message[0][3]
-w2 = secret_message[1][9:12]
+w2 = secret_message[1][9:13]
 w3 = secret_message[2][5:14:2]
-w4 = secret_message[3][7:12:-1]
-w5 = secret_message[4][16:20:-1]
+w4 = secret_message[3][12:6:-1]
+w5 = secret_message[4][20:15:-1]
 s = f"{w1} {w2} {w3} {w4} {w5}"
 print(s)
