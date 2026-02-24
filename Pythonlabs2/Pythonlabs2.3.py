@@ -14,11 +14,15 @@ def m(n):
     if len(dp)>=5:
         for i in range (5):
             k *= dp[i]
-            if i > 5:
-                break
     else:
         return 0
     return k
-for n in [200000040, 200000100, 200000160, 200000220, 200000280]:
-    print(f"M({n}) = {m(n)}")
+c = 0
+for n in range (200000000, 3000000000):
+    if 0 < m(n) < n:
+        c += 1
+        print(f"M({n}) = {m(n)}")
+        if c > 5:
+            break
+            
 
