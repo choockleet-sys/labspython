@@ -1,3 +1,4 @@
+import pprint
 import copy
 def rec(n, s):
     if n == 1:
@@ -6,8 +7,8 @@ def rec(n, s):
     for i in range(s):
         r.append(rec(n-1,s))
     return r
-print("рекусривный",rec(2, 3))
-
+print("Рекурсивный")
+pprint.pprint(rec(2, 3))
 
 def mas(n, s):
     if n <= 0:
@@ -19,4 +20,6 @@ def mas(n, s):
             r.append(copy.deepcopy(a))
         a = r
     return a 
-print("нерекурсивный",mas(3,2))
+
+print("Нерекурсивный")
+pprint.pprint(mas(2,3))
