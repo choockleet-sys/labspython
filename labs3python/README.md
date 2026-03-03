@@ -2,7 +2,8 @@
 # 1
 Цель работы: создать массивы рекурсивным и нерекурсивным способами
 
-<img width="465" height="197" alt="image" src="https://github.com/user-attachments/assets/36e433bc-aed7-4f90-a363-ab8a663bf91c" />
+<img width="490" height="513" alt="image" src="https://github.com/user-attachments/assets/e89b8d8e-4c14-4890-852f-1a850720317a" />
+
 
 Вывод: создал с помощью функии def рекурснивый и нерекурсивным способами
 
