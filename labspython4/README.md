@@ -5,4 +5,4 @@
 
 Вывод: Сделал замыкание для отслеживания количества HP героя
 # Использованные источники:
-[#44. Замыкания в Python] (https://proproprogs.ru/python_base/python3-zamykaniya-v-python)
+1.[#44. Замыкания в Python](https://proproprogs.ru/python_base/python3-zamykaniya-v-python)
