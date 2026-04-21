@@ -21,26 +21,27 @@ from calculator import Calculator
 # Главный виджет приложения — вся компоновка экрана
 class MainLayout(BoxLayout):
     def __init__(self, **kwargs):
-        # Вызываем конструктор родительского класса BoxLayout
-        super().__init__(**kwargs)
-
-        # Вертикальная ориентация — элементы идут сверху вниз
-        self.orientation = "vertical"
-        self.padding = 20
-        self.spacing = 10
-
         # Последний результат расчёта (нужен для сохранения отчёта)
         self.last_result = None
 
         # Создаём калькулятор с тарифом по умолчанию
         self.calc = Calculator(cost_per_kwh=6.0)
 
-        # Словарь приборов
+        # Словарь приборов — создаём ДО вызова super().__init__()
+        # иначе Kivy может обратиться к self.devices раньше времени
         self.devices = {
             "Iron":   Iron(1200),
             "Tv":     Tv(100),
             "Washer": Washer(2000)
         }
+
+        # Вызываем конструктор родительского класса после инициализации данных
+        super().__init__(**kwargs)
+
+        # Вертикальная ориентация — элементы идут сверху вниз
+        self.orientation = "vertical"
+        self.padding = 20
+        self.spacing = 10
 
         # Строим интерфейс
         self._build_ui()
