@@ -1,191 +1,126 @@
-import sys
-from datetime import datetime
-from PyQt5.QtWidgets import (
-    QApplication, QWidget, QVBoxLayout, QHBoxLayout,
-    QLabel, QLineEdit, QPushButton, QTextEdit,
-    QRadioButton, QButtonGroup, QGroupBox, QMessageBox, QFileDialog
-)
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont
-from docx import Document
-from docx.shared import Pt, RGBColor
-
-from devices import Iron, Tv, Washer
-from calculator import Calculator
+# Импортируем ABC и abstractmethod для создания абстрактного базового класса
+from abc import ABC, abstractmethod
 
 
-class App(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle("Расчет электроэнергии")
-        self.setFixedSize(500, 520)
+# Абстрактный базовый класс для всех электроприборов
+class ElectricDevice(ABC):
+    def __init__(self, power, name):
+        # Устанавливаем мощность и название через property (с проверкой)
+        self.power = power
+        self.name = name
 
-        self.last_result = None
-        self.calc = Calculator(cost_per_kwh=6.0)
-        self.devices = {
-            "Iron": Iron(1200),
-            "Tv": Tv(100),
-            "Washer": Washer(2000)
-        }
+    # Геттер для мощности
+    @property
+    def power(self):
+        return self._power
 
-        layout = QVBoxLayout()
-        self.setLayout(layout)
+    # Сеттер для мощности — проверяем, что значение больше 0
+    @power.setter
+    def power(self, value):
+        if value <= 0:
+            raise ValueError("Мощность должна быть больше 0")
+        self._power = value
 
-        # Заголовок
-        title = QLabel("Расчет потребления электроэнергии")
-        title.setFont(QFont("Arial", 14, QFont.Bold))
-        title.setAlignment(Qt.AlignCenter)
-        layout.addWidget(title)
+    # Геттер для названия прибора
+    @property
+    def name(self):
+        return self._name
 
-        # Выбор прибора
-        group = QGroupBox("Выберите прибор:")
-        group_layout = QVBoxLayout()
-        self.btn_group = QButtonGroup()
+    # Сеттер для названия — проверяем, что строка не пустая
+    @name.setter
+    def name(self, value):
+        if not value:
+            raise ValueError("Имя не может быть пустым")
+        self._name = value
 
-        for i, (key, device) in enumerate(self.devices.items()):
-            rb = QRadioButton(str(device))
-            rb.setProperty("key", key)
-            if i == 0:
-                rb.setChecked(True)
-            self.btn_group.addButton(rb)
-            group_layout.addWidget(rb)
+    # Абстрактный метод — каждый наследник обязан его реализовать
+    @abstractmethod
+    def get_description(self):
+        pass
 
-        group.setLayout(group_layout)
-        layout.addWidget(group)
+    # Возвращает строку при print(объект)
+    def __str__(self):
+        return f"{self.name}: {self.power} Вт"
 
-        # Поле: часы
-        layout.addWidget(QLabel("Часы использования:"))
-        self.hours_input = QLineEdit()
-        layout.addWidget(self.hours_input)
+    # Возвращает строку при repr(объект) — для отладки
+    def __repr__(self):
+        return f"{self.__class__.__name__}(power={self.power})"
 
-        # Поле: цена
-        layout.addWidget(QLabel("Цена за кВт·ч (руб.):"))
-        self.price_input = QLineEdit("6.0")
-        layout.addWidget(self.price_input)
 
-        # Кнопки
-        btn_layout = QHBoxLayout()
-        calc_btn = QPushButton("Рассчитать")
-        calc_btn.setStyleSheet("background-color: green; color: white; font-size: 12px;")
-        calc_btn.clicked.connect(self.calculate)
+# Промежуточный класс для бытовой техники (утюг, стиралка)
+class HouseholdAppliance(ElectricDevice):
+    def __init__(self, power, name):
+        # Вызываем конструктор родительского класса
+        super().__init__(power, name)
 
-        save_btn = QPushButton("Сохранить отчет")
-        save_btn.setStyleSheet("background-color: blue; color: white; font-size: 12px;")
-        save_btn.clicked.connect(self.save_report)
-
-        btn_layout.addWidget(calc_btn)
-        btn_layout.addWidget(save_btn)
-        layout.addLayout(btn_layout)
-
-        # Результат
-        self.result_box = QTextEdit()
-        self.result_box.setReadOnly(True)
-        layout.addWidget(self.result_box)
+    # Реализация абстрактного метода
+    def get_description(self):
+        return f"Бытовой прибор: {self.name}, мощность {self.power} Вт"
 
     def __str__(self):
-        return f"App(devices={list(self.devices.keys())})"
+        return f"{self.name}: {self.power} Вт"
 
     def __repr__(self):
-        return f"App(calc={self.calc})"
-
-    def get_selected_key(self):
-        for btn in self.btn_group.buttons():
-            if btn.isChecked():
-                return btn.property("key")
-        return "Iron"
-
-    def calculate(self):
-        try:
-            hours = float(self.hours_input.text())
-            price = float(self.price_input.text())
-
-            if hours <= 0:
-                raise ValueError("Часы должны быть больше 0")
-            if price <= 0:
-                raise ValueError("Цена должна быть больше 0")
-
-            key = self.get_selected_key()
-            device = self.devices[key]
-            self.calc.cost_per_kwh = price
-
-            energy = self.calc.calc_energy(device.power, hours)
-            cost = self.calc.calc_cost(device.power, hours)
-
-            self.last_result = {
-                "device": str(device),
-                "power": device.power,
-                "hours": hours,
-                "price": price,
-                "energy": energy,
-                "cost": cost,
-                "date": datetime.now().strftime("%d.%m.%Y %H:%M:%S")
-            }
-
-            text = f"Прибор: {device}\n"
-            text += f"Мощность: {device.power} Вт\n"
-            text += f"Время: {hours} ч\n\n"
-            text += f"Потребление: {energy:.2f} кВт·ч\n"
-            text += f"Цена за кВт·ч: {price} руб.\n"
-            text += f"Итого: {cost:.2f} руб."
-
-            self.result_box.setPlainText(text)
-
-        except ValueError as e:
-            QMessageBox.warning(self, "Ошибка", str(e))
-
-    def save_report(self):
-        if not self.last_result:
-            QMessageBox.warning(self, "Внимание", "Сначала выполните расчет!")
-            return
-
-        path, _ = QFileDialog.getSaveFileName(
-            self, "Сохранить отчет",
-            f"Отчет_{datetime.now().strftime('%d_%m_%Y')}.docx",
-            "Word документы (*.docx)"
-        )
-        if not path:
-            return
-
-        try:
-            doc = Document()
-
-            title = doc.add_heading("ОТЧЕТ О РАСЧЕТЕ ЭЛЕКТРОЭНЕРГИИ", 0)
-            title.alignment = 1
-
-            doc.add_paragraph(f"Дата: {self.last_result['date']}").alignment = 1
-
-            doc.add_heading("Информация о приборе", level=1)
-            table = doc.add_table(rows=5, cols=2)
-            table.style = "Light Grid Accent 1"
-
-            table.rows[0].cells[0].text = "Прибор"
-            table.rows[0].cells[1].text = self.last_result["device"]
-            table.rows[1].cells[0].text = "Мощность"
-            table.rows[1].cells[1].text = f"{self.last_result['power']} Вт"
-            table.rows[2].cells[0].text = "Время использования"
-            table.rows[2].cells[1].text = f"{self.last_result['hours']} ч"
-            table.rows[3].cells[0].text = "Цена за кВт·ч"
-            table.rows[3].cells[1].text = f"{self.last_result['price']} руб."
-            table.rows[4].cells[0].text = "Потребление"
-            table.rows[4].cells[1].text = f"{self.last_result['energy']:.2f} кВт·ч"
-
-            doc.add_heading("Итого", level=1)
-            p = doc.add_paragraph()
-            run = p.add_run(f"{self.last_result['cost']:.2f} руб.")
-            run.font.size = Pt(18)
-            run.font.bold = True
-            run.font.color.rgb = RGBColor(255, 0, 0)
-            p.alignment = 1
-
-            doc.save(path)
-            QMessageBox.information(self, "Успех", f"Отчет сохранен:\n{path}")
-
-        except Exception as e:
-            QMessageBox.critical(self, "Ошибка", str(e))
+        return f"HouseholdAppliance(name={self.name}, power={self.power})"
 
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    window = App()
-    window.show()
-    sys.exit(app.exec_())
+# Промежуточный класс для развлекательной техники (телевизор)
+class EntertainmentDevice(ElectricDevice):
+    def __init__(self, power, name):
+        super().__init__(power, name)
+
+    # Реализация абстрактного метода
+    def get_description(self):
+        return f"Развлекательный прибор: {self.name}, мощность {self.power} Вт"
+
+    def __str__(self):
+        return f"{self.name}: {self.power} Вт"
+
+    def __repr__(self):
+        return f"EntertainmentDevice(name={self.name}, power={self.power})"
+
+
+# Класс утюга — наследуется от HouseholdAppliance
+class Iron(HouseholdAppliance):
+    def __init__(self, power):
+        # Передаём название "Утюг" в родительский класс
+        super().__init__(power, "Утюг")
+
+    def get_description(self):
+        return f"Утюг, мощность {self.power} Вт"
+
+    def __str__(self):
+        return f"Утюг: {self.power} Вт"
+
+    def __repr__(self):
+        return f"Iron(power={self.power})"
+
+
+# Класс стиральной машины — наследуется от HouseholdAppliance
+class Washer(HouseholdAppliance):
+    def __init__(self, power):
+        super().__init__(power, "Стиральная машина")
+
+    def get_description(self):
+        return f"Стиральная машина, мощность {self.power} Вт"
+
+    def __str__(self):
+        return f"Стиральная машина: {self.power} Вт"
+
+    def __repr__(self):
+        return f"Washer(power={self.power})"
+
+
+# Класс телевизора — наследуется от EntertainmentDevice
+class Tv(EntertainmentDevice):
+    def __init__(self, power):
+        super().__init__(power, "Телевизор")
+
+    def get_description(self):
+        return f"Телевизор, мощность {self.power} Вт"
+
+    def __str__(self):
+        return f"Телевизор: {self.power} Вт"
+
+    def __repr__(self):
+        return f"Tv(power={self.power})"
