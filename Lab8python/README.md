@@ -93,10 +93,10 @@ self.storage.add(name, login, password)
 
 ## Использованные источники:
 
-1.  https://docs.python.org/3/library/tkinter.html\
-2.  https://cryptography.io/en/latest/\
-3.  https://docs.python.org/3/library/json.html\
-4.  https://docs.python.org/3/library/abc.html\
-5.  tkinter --- библиотека для создания GUI\
-6.  cryptography --- библиотека для шифрования данных\
+1.  https://docs.python.org/3/library/tkinter.html
+2.  https://cryptography.io/en/latest/
+3.  https://docs.python.org/3/library/json.html
+4.  https://docs.python.org/3/library/abc.html
+5.  tkinter --- библиотека для создания GUI
+6.  cryptography --- библиотека для шифрования данных
 7.  JSON --- формат хранения данных
